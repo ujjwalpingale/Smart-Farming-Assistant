@@ -1,0 +1,45 @@
+{% extends 'user_app/base.html' %}
+
+{% block title %}Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="display-5 mb-2">Smart Farming Assistant</h1>
+  <p class="lead text-muted">AI-powered Crop, Fertilizer & Disease Recommendation System</p>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <div class="mb-3 text-success"><i class="bi bi-seedling card-icon"></i></div>
+        <h5 class="card-title">Crop Recommendation</h5>
+        <p class="card-text text-muted">Recommend the best crop based on soil and weather inputs.</p>
+        <a href="/crop/" class="btn btn-primary">Open</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <div class="mb-3 text-warning"><i class="bi bi-leaf card-icon"></i></div>
+        <h5 class="card-title">Fertilizer Recommendation</h5>
+        <p class="card-text text-muted">Get fertilizer suggestions from soil nutrient values.</p>
+        <a href="/fertilizer/" class="btn btn-primary">Open</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <div class="mb-3 text-danger"><i class="bi bi-bandaid card-icon"></i></div>
+        <h5 class="card-title">Disease Detection</h5>
+        <p class="card-text text-muted">Detect plant diseases from images and get prevention tips.</p>
+        <a href="/disease/" class="btn btn-primary">Open</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

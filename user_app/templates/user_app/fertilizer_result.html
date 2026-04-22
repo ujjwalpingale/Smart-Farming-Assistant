@@ -1,0 +1,14 @@
+{% extends 'user_app/base.html' %}
+{% block title %}Fertilizer Result{% endblock %}
+
+{% block content %}
+<div class="card mt-4 shadow-sm">
+  <div class="card-body text-center">
+    <h4 class="card-title">Recommended Fertilizer</h4>
+    <div class="alert alert-success mt-3" role="alert">
+      <h5 class="mb-0">{{ result }}</h5>
+    </div>
+    <a href="/fertilizer/" class="btn btn-outline-primary mt-3">Try Again</a>
+  </div>
+</div>
+{% endblock %}

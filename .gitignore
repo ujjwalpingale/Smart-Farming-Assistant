@@ -1,0 +1,56 @@
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+
+# ─── Virtual Environments ─────────────────────────────────────────────────────
+# Both dirs exist; exclude both so neither pollutes the repo.
+.venv/
+venv/
+env/
+ENV/
+
+# ─── Django ─────────────────────────────────────────────────────────────────
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# ─── Secrets & Environment ────────────────────────────────────────────────────
+# Never commit the real .env — only .env.example belongs in source control.
+.env
+# (keep) .env.example
+
+# ─── ML Model Artefacts ───────────────────────────────────────────────────────
+# Large binary files should be stored in DVC / Git LFS, not plain git.
+# Uncomment the lines below if you move model files to remote storage.
+# ml_models/**/*.pkl
+# ml_models/**/*.h5
+# ml_models/**/*.npy
+
+# ─── Build / Dist ─────────────────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+
+# ─── Testing & Coverage ───────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+
+# ─── IDE / OS ─────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

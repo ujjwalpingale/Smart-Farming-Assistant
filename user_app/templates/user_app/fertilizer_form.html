@@ -1,0 +1,43 @@
+{% extends 'user_app/base.html' %}
+{% block title %}Fertilizer Recommendation{% endblock %}
+
+{% block content %}
+<div class="card form-card shadow-sm mt-4">
+  <div class="card-body">
+    <h4 class="card-title mb-3">Fertilizer Recommendation</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Nitrogen</label>
+          <input type="number" name="nitrogen" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Phosphorus</label>
+          <input type="number" name="phosphorus" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Potassium</label>
+          <input type="number" name="potassium" class="form-control" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Soil Type (optional)</label>
+          <select name="soil" class="form-select">
+            <option value="">--Select--</option>
+            <option value="Acidic Soil">Acidic Soil</option>
+            <option value="Alkaline Soil">Alkaline Soil</option>
+            <option value="Loamy Soil">Loamy Soil</option>
+            <option value="Neutral Soil">Neutral Soil</option>
+            <option value="Peaty Soil">Peaty Soil</option>
+          </select>
+        </div>
+
+        <div class="col-12 text-center mt-3">
+          <button type="submit" class="btn btn-success">Recommend Fertilizer</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
