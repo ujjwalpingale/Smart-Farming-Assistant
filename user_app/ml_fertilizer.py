@@ -28,11 +28,19 @@ def _safe_load_file(file_path, fallback_list):
     
     try:
         if joblib:
-            return list(joblib.load(file_path))
+            obj = joblib.load(file_path)
         else:
             import pickle
             with open(file_path, 'rb') as f:
-                return list(pickle.load(f))
+                obj = pickle.load(f)
+        
+        # If it's a LabelEncoder, extract classes
+        if hasattr(obj, 'classes_'):
+            return list(obj.classes_)
+        # If it's already a list or array
+        if isinstance(obj, (list, tuple, np.ndarray)):
+            return list(obj)
+        return fallback_list
     except Exception as e:
         logger.warning(f'Error loading file {file_path}: {str(e)}, using fallback')
         return fallback_list
@@ -51,8 +59,28 @@ soil_list = _safe_load_file(
     ['Acidic Soil', 'Alkaline Soil', 'Loamy Soil', 'Neutral Soil', 'Peaty Soil']
 )
 
-# Lazy model loader and cache
+# Lazy model and encoder loader
 _MODEL = None
+_SOIL_ENCODER = None
+
+def _load_soil_encoder():
+    global _SOIL_ENCODER
+    if _SOIL_ENCODER is not None:
+        return _SOIL_ENCODER
+    
+    if not os.path.exists(SOIL_PATH):
+        return None
+        
+    try:
+        if joblib:
+            _SOIL_ENCODER = joblib.load(SOIL_PATH)
+        else:
+            import pickle
+            with open(SOIL_PATH, 'rb') as f:
+                _SOIL_ENCODER = pickle.load(f)
+        return _SOIL_ENCODER
+    except:
+        return None
 
 
 def _load_model():
@@ -101,45 +129,49 @@ def _use_model_predict(nitrogen, phosphorus, potassium, soil=None):
     if not model:
         return None
 
-    # Prepare feature vector. Many historical artifacts expect features in a specific order.
-    # We'll support common simple case: model expects [nitrogen, phosphorus, potassium] or accepts extra features.
-    # If model.n_features_in_ is present, fill missing features with zeros.
     try:
-        n_features = getattr(model, 'n_features_in_', None)
-        if n_features is None:
-            # Try to predict with minimal features
-            feat = [[nitrogen, phosphorus, potassium]]
+        # Encode soil if provided
+        soil_idx = 0
+        if soil:
+            encoder = _load_soil_encoder()
+            if encoder:
+                try:
+                    if hasattr(encoder, 'transform'):
+                        soil_idx = encoder.transform([soil])[0]
+                    else:
+                        soil_idx = soil_list.index(soil)
+                except:
+                    soil_idx = 0
+
+        n_features = getattr(model, 'n_features_in_', 4)
+        feat = np.zeros((1, n_features))
+        
+        # Populating features (standard order: N, P, K, Soil)
+        if n_features >= 1: feat[0, 0] = nitrogen
+        if n_features >= 2: feat[0, 1] = phosphorus
+        if n_features >= 3: feat[0, 2] = potassium
+        if n_features >= 4: feat[0, 3] = soil_idx
+        
+        if hasattr(model, 'predict_proba'):
+            probs = model.predict_proba(feat)[0]
+            classes = model.classes_
+            
+            top_indices = np.argsort(probs)[::-1][:3]
+            results = []
+            for idx in top_indices:
+                label = classes[idx]
+                if isinstance(label, (int, np.integer)):
+                    if 0 <= label < len(fertilizer_list):
+                        label = fertilizer_list[label]
+                results.append(str(label))
+            return results
         else:
-            # Create a vector of length n_features, fill with zeros and place known values in common positions
-            feat = [np.zeros(n_features, dtype=float).tolist()]
-            # heuristic placement: try to put N,P,K near the end if too many features
-            if n_features >= 3:
-                feat[0][0] = nitrogen
-                feat[0][1] = phosphorus
-                feat[0][2] = potassium
-            else:
-                # fallback: just fill first slots
-                for i, v in enumerate([nitrogen, phosphorus, potassium][:n_features]):
-                    feat[0][i] = v
-        pred = model.predict(feat)
-        # If prediction is numeric index, try to map to fertilizer_list
-        try:
-            if isinstance(pred, (list, tuple, np.ndarray)):
-                pval = pred[0]
-            else:
-                pval = pred
-            # If it's integer index
-            if isinstance(pval, (int, np.integer)):
-                idx = int(pval)
-                if 0 <= idx < len(fertilizer_list):
-                    return fertilizer_list[idx]
-            # If it's already string
-            if isinstance(pval, str):
-                return pval
-            # If it's array-like label
-            return str(pval)
-        except Exception:
-            return str(pred)
+            pred = model.predict(feat)[0]
+            if isinstance(pred, (int, np.integer)):
+                if 0 <= pred < len(fertilizer_list):
+                    pred = fertilizer_list[pred]
+            return [str(pred)]
+            
     except Exception as e:
         warnings.warn(f"Model prediction failed: {e}")
         return None
@@ -147,25 +179,24 @@ def _use_model_predict(nitrogen, phosphorus, potassium, soil=None):
 
 def predict_fertilizer(data):
     """Fertilizer recommendation.
-
     Attempts to use a trained model if present; otherwise falls back to heuristics.
-    data: [nitrogen, phosphorus, potassium, soil (optional string)]
+    Returns list of top 3 recommendations.
     """
     try:
         nitrogen = float(data[0])
         phosphorus = float(data[1])
         potassium = float(data[2])
     except Exception:
-        return fertilizer_list[0]
+        return [fertilizer_list[0]]
 
     soil = None
     if len(data) > 3:
         soil = data[3]
 
     # Try model first
-    model_rec = _use_model_predict(nitrogen, phosphorus, potassium, soil=soil)
-    if model_rec:
-        return model_rec
+    model_recs = _use_model_predict(nitrogen, phosphorus, potassium, soil=soil)
+    if model_recs:
+        return model_recs
 
     # Heuristics fallback
     if nitrogen < 50:
@@ -185,4 +216,4 @@ def predict_fertilizer(data):
         if 'peat' in s or 'peaty' in s:
             rec = 'Compost' if 'Compost' in fertilizer_list else rec
 
-    return rec
+    return [rec]

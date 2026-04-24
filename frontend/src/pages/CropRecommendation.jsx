@@ -14,7 +14,7 @@ const FIELDS = [
 
 export default function CropRecommendation() {
   const [values, setValues] = useState({});
-  const [result, setResult] = useState(null);
+  const [results, setResults] = useState([]); // Changed to list
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,43 +23,66 @@ export default function CropRecommendation() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-    setResult(null);
+    setResults([]);
     setLoading(true);
     try {
       const res = await predictCrop(values);
-      // Django renders a result page; parse the result from the HTML
       const html = await res.text();
-      // Try to find "Recommended Crop" heading content
-      const m = html.match(/Recommended Crop[\s\S]*?<h5[^>]*>([^<]+)<\/h5>/i)
-             || html.match(/result"\}>([^<]+)<\/h5>/i)
-             || html.match(/alert-success[^>]*>[\s\S]*?<h5[^>]*>\s*([^<]+)\s*<\/h5>/i);
-      if (m) {
-        setResult(m[1].trim());
+      
+      // Extract all H5 contents from the result list
+      const matches = [...html.matchAll(/<h5[^>]*>([^<]+)<\/h5>/gi)];
+      const found = matches.map(m => m[1].trim()).filter(t => t !== 'Recommended Crops');
+      
+      if (found.length > 0) {
+        setResults(found);
       } else if (res.ok) {
-        setResult('Prediction received — check Django HTML for result.');
+        setResults(['Prediction received — check Django log.']);
       } else {
         setError('Prediction failed. Please check your inputs.');
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError('Network error. Make sure Django is running on port 8000.');
     } finally {
       setLoading(false);
     }
   }
 
-  function reset() { setResult(null); setValues({}); setError(''); }
+  function reset() { setResults([]); setValues({}); setError(''); }
 
-  if (result) {
+  if (results.length > 0) {
     return (
       <div className="main-content">
         <div className="container" style={{ maxWidth: 560, padding: '3rem 1.5rem' }}>
           <div className="glass-card result-card animate-fade-up">
             <div className="result-icon green">🌾</div>
-            <div className="result-label">Recommended Crop</div>
-            <div className="result-value">{result}</div>
+            <div className="result-label">Recommended Crops</div>
+            
+            <div className="results-list" style={{ margin: '1.5rem 0' }}>
+              {results.map((r, i) => (
+                <div key={i} className={`result-item ${i === 0 ? 'primary' : 'secondary'}`} style={{
+                  padding: i === 0 ? '1rem' : '0.75rem',
+                  background: i === 0 ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.05)',
+                  borderRadius: '12px',
+                  marginBottom: '0.75rem',
+                  border: i === 0 ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  <div className="result-value" style={{ 
+                    fontSize: i === 0 ? '1.8rem' : '1.2rem',
+                    color: i === 0 ? 'var(--accent-green)' : 'inherit',
+                    fontWeight: 700 
+                  }}>
+                    {i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : '🥉 '} {r}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                    {i === 0 ? 'Best Match' : `Alternative Option ${i}`}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <p className="result-desc">
-              Based on your soil and climate parameters, this crop is predicted
-              to deliver the best yield for your conditions.
+              Our AI has analyzed your conditions and identified these top choices for your farm.
             </p>
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
               <button className="btn btn-primary" onClick={reset}>Try Another →</button>

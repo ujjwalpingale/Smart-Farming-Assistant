@@ -110,7 +110,7 @@ def predict_crop(data):
         data: List of 7 features [nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]
     
     Returns:
-        Recommended crop name (str)
+        List of top 3 recommended crops
     """
     if not isinstance(data, (list, tuple)) or len(data) != 7:
         logger.error('Invalid data format for crop prediction')
@@ -119,20 +119,42 @@ def predict_crop(data):
     model = _load_model()
     encoder = _load_encoder()
     
-    if model is None or encoder is None:
-        logger.warning('Model or encoder not available, using fallback')
-        return 'Rice'  # Fallback
+    if model is None:
+        logger.warning('Model not available, using fallback')
+        return ['Rice', 'Maize', 'Wheat']
     
     try:
         # Validate input types
         data = [float(x) for x in data]
-        
-        # Prepare input as 2D array for sklearn model
         X = np.array([data]).reshape(1, -1)
-        prediction = model.predict(X)
-        # Use encoder to get readable label
-        result = encoder.inverse_transform(prediction)[0]
-        return result
+        
+        # Get probabilities for all classes
+        if hasattr(model, 'predict_proba'):
+            probs = model.predict_proba(X)[0]
+            classes = model.classes_
+            
+            # Sort by probability descending
+            top_indices = np.argsort(probs)[::-1][:3]
+            top_results = []
+            
+            for idx in top_indices:
+                label = classes[idx]
+                # If label is an integer/index, decode it
+                if isinstance(label, (int, np.integer)) and encoder:
+                    try:
+                        label = encoder.inverse_transform([label])[0]
+                    except:
+                        pass
+                top_results.append(str(label))
+            
+            return top_results
+        else:
+            # Fallback to single prediction if predict_proba not available
+            prediction = model.predict(X)[0]
+            if isinstance(prediction, (int, np.integer)) and encoder:
+                prediction = encoder.inverse_transform([prediction])[0]
+            return [str(prediction)]
+            
     except Exception as e:
         logger.error(f'Crop prediction error: {str(e)}')
-        return 'Rice'  # Fallback
+        return ['Rice', 'Maize', 'Wheat']

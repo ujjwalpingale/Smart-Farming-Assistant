@@ -8,7 +8,7 @@ const SOIL_TYPES = [
 
 export default function FertilizerRecommendation() {
   const [values, setValues] = useState({ nitrogen: '', phosphorus: '', potassium: '', soil: '' });
-  const [result, setResult] = useState(null);
+  const [results, setResults] = useState([]);
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,40 +17,65 @@ export default function FertilizerRecommendation() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-    setResult(null);
+    setResults([]);
     setLoading(true);
     try {
       const res = await predictFertilizer(values);
       const html = await res.text();
-      const m = html.match(/Recommended Fertilizer[\s\S]*?<h5[^>]*>([^<]+)<\/h5>/i)
-             || html.match(/alert-success[^>]*>[\s\S]*?<h5[^>]*>\s*([^<]+)\s*<\/h5>/i);
-      if (m) {
-        setResult(m[1].trim());
+      
+      const matches = [...html.matchAll(/<h5[^>]*>([^<]+)<\/h5>/gi)];
+      const found = matches.map(m => m[1].trim()).filter(t => t !== 'Recommended Fertilizers');
+
+      if (found.length > 0) {
+        setResults(found);
       } else if (res.ok) {
-        setResult('Recommendation received — check response.');
+        setResults(['Recommendation received — check response.']);
       } else {
         setError('Prediction failed. Please check your inputs.');
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError('Network error. Make sure Django is running on port 8000.');
     } finally {
       setLoading(false);
     }
   }
 
-  function reset() { setResult(null); setValues({ nitrogen: '', phosphorus: '', potassium: '', soil: '' }); setError(''); }
+  function reset() { setResults([]); setValues({ nitrogen: '', phosphorus: '', potassium: '', soil: '' }); setError(''); }
 
-  if (result) {
+  if (results.length > 0) {
     return (
       <div className="main-content">
         <div className="container" style={{ maxWidth: 560, padding: '3rem 1.5rem' }}>
           <div className="glass-card result-card animate-fade-up">
-            <div className="result-icon amber">🧪</div>
-            <div className="result-label">Recommended Fertilizer</div>
-            <div className="result-value" style={{ fontSize: '1.9rem' }}>{result}</div>
+            <div className="result-icon orange">🧪</div>
+            <div className="result-label">Recommended Fertilizers</div>
+            
+            <div className="results-list" style={{ margin: '1.5rem 0' }}>
+              {results.map((r, i) => (
+                <div key={i} className={`result-item ${i === 0 ? 'primary' : 'secondary'}`} style={{
+                  padding: i === 0 ? '1rem' : '0.75rem',
+                  background: i === 0 ? 'rgba(249,115,22,0.1)' : 'rgba(255,255,255,0.05)',
+                  borderRadius: '12px',
+                  marginBottom: '0.75rem',
+                  border: i === 0 ? '1px solid rgba(249,115,22,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  <div className="result-value" style={{ 
+                    fontSize: i === 0 ? '1.8rem' : '1.2rem',
+                    color: i === 0 ? 'var(--accent-orange)' : 'inherit',
+                    fontWeight: 700 
+                  }}>
+                    {i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : '🥉 '} {r}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                    {i === 0 ? 'Best Match' : `Alternative Option ${i}`}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <p className="result-desc">
-              Based on your soil nutrients and type, this fertilizer is
-              recommended to optimise plant growth and health.
+              These fertilizers are recommended to optimize your soil's nutrient balance.
             </p>
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
               <button className="btn btn-primary" onClick={reset}>Try Another →</button>

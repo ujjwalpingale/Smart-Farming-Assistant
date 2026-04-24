@@ -93,3 +93,4 @@ export async function predictDisease(fields, imageFile) {
   if (imageFile) form.append('image', imageFile);
   return request('/disease/', { method: 'POST', body: form, headers: {} });
 }
+

@@ -279,21 +279,11 @@ def crop_recommendation(request):
             messages.error(request, f'Invalid input: {str(e)}')
             return render(request, 'user_app/crop_form.html')
 
-        result = predict_crop(data)
+        results = predict_crop(data)
+        top_result = results[0]
 
-        CropInput.objects.create(
-            user=request.user,
-            nitrogen=data[0],
-            phosphorus=data[1],
-            potassium=data[2],
-            temperature=data[3],
-            humidity=data[4],
-            ph=data[5],
-            rainfall=data[6],
-            result=result
-        )
 
-        return render(request, 'user_app/result.html', {'result': result})
+        return render(request, 'user_app/result.html', {'results': results})
 
     return render(request, 'user_app/crop_form.html')
 
@@ -320,17 +310,11 @@ def fertilizer_recommendation(request):
             messages.error(request, f'Invalid input: {str(e)}')
             return render(request, 'user_app/fertilizer_form.html')
 
-        result = predict_fertilizer([nitrogen, phosphorus, potassium, soil])
+        results = predict_fertilizer([nitrogen, phosphorus, potassium, soil])
+        top_result = results[0]
 
-        FertilizerInput.objects.create(
-            user=request.user,
-            nitrogen=nitrogen,
-            phosphorus=phosphorus,
-            potassium=potassium,
-            recommended_fertilizer=result
-        )
 
-        return render(request, 'user_app/fertilizer_result.html', {'result': result})
+        return render(request, 'user_app/fertilizer_result.html', {'results': results})
 
     return render(request, 'user_app/fertilizer_form.html')
 
@@ -361,13 +345,6 @@ def disease_detection(request):
                 disease_name = 'Prediction failed'
                 prevention = 'An unexpected error occurred. Please contact support.'
 
-        DiseaseInput.objects.create(
-            user=request.user,
-            crop_name=crop_name,
-            symptoms=symptoms,
-            disease_name=disease_name,
-            prevention=prevention
-        )
 
         return render(request, 'user_app/disease_result.html', {'disease': disease_name, 'prevention': prevention})
 
