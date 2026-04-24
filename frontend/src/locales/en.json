@@ -64,7 +64,14 @@
     "ph": "Soil pH",
     "rainfall": "Rainfall",
     "result_title": "Recommended Crops",
-    "result_desc": "Our AI has analyzed your conditions and identified these top choices for your farm."
+    "result_desc": "Our AI has analyzed your conditions and identified these top choices for your farm.",
+    "input_mode": "Input Mode",
+    "manual": "Manual Input",
+    "location": "Use Location",
+    "district": "District",
+    "taluka": "Taluka",
+    "fetch_weather": "Fetch Weather Data",
+    "weather_note": "Weather data is auto-filled. You can edit values."
   },
   "fert": {
     "title": "Fertilizer Recommendation",
@@ -129,6 +136,9 @@
       "exists": "Username already exists.",
       "failed": "Registration failed."
     },
+    "login_failed": "Login failed. Please check your credentials.",
+    "username_placeholder": "Enter your username",
+    "password_placeholder": "Enter your password",
     "rules": {
       "len": "12+ characters",
       "upper": "1 uppercase",

@@ -11,8 +11,9 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         bypass: function (req, res, proxyOptions) {
-          if (req.method === 'GET') {
-            return req.url; // Let Vite/React handle the GET request
+          // Allow /api/ and /chatbot/ GET requests to pass through to Django
+          if (req.method === 'GET' && !req.url.startsWith('/api/') && !req.url.startsWith('/chatbot/')) {
+            return req.url;
           }
         }
       }

@@ -1,11 +1,16 @@
+import os
+import random
+import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import re
 import logging
 
@@ -154,7 +159,6 @@ def change_password_admin(request):
         try:
             target_user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            messages.error(request, 'User not found.')
             return render(request, 'user_app/change_password_admin.html', {'users': users})
 
         is_valid, error_msg = validate_password_strength(new_password, user=target_user)
@@ -276,16 +280,12 @@ def crop_recommendation(request):
             
             data = [nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]
         except (ValueError, TypeError) as e:
-            messages.error(request, f'Invalid input: {str(e)}')
-            return render(request, 'user_app/crop_form.html')
+            return JsonResponse({'error': f'Invalid input: {str(e)}'}, status=400)
 
         results = predict_crop(data)
-        top_result = results[0]
+        return JsonResponse({'results': results})
 
-
-        return render(request, 'user_app/result.html', {'results': results})
-
-    return render(request, 'user_app/crop_form.html')
+    return JsonResponse({'error': 'POST required'}, status=405)
 
 
 @login_required
@@ -307,16 +307,12 @@ def fertilizer_recommendation(request):
             if not (0 <= potassium <= 200):
                 raise ValueError('Potassium must be between 0 and 200')
         except (ValueError, TypeError) as e:
-            messages.error(request, f'Invalid input: {str(e)}')
-            return render(request, 'user_app/fertilizer_form.html')
+            return JsonResponse({'error': f'Invalid input: {str(e)}'}, status=400)
 
         results = predict_fertilizer([nitrogen, phosphorus, potassium, soil])
-        top_result = results[0]
+        return JsonResponse({'results': results})
 
-
-        return render(request, 'user_app/fertilizer_result.html', {'results': results})
-
-    return render(request, 'user_app/fertilizer_form.html')
+    return JsonResponse({'error': 'POST required'}, status=405)
 
 
 @login_required
@@ -332,20 +328,60 @@ def disease_detection(request):
         if image:
             try:
                 disease_name, prevention, _ = predict_disease(image)
+                return JsonResponse({'disease': disease_name, 'prevention': prevention})
             except ValueError as e:
                 logger.warning(f'Disease prediction validation error: {str(e)}')
-                disease_name = 'Prediction failed'
-                prevention = 'Invalid image or file. Please upload a valid image.'
+                return JsonResponse({'error': 'Invalid image or file. Please upload a valid image.'}, status=400)
             except RuntimeError as e:
                 logger.error(f'Disease prediction error: {str(e)}')
-                disease_name = 'Prediction failed'
-                prevention = 'An error occurred during prediction. Please try again.'
+                return JsonResponse({'error': 'An error occurred during prediction. Please try again.'}, status=500)
             except Exception as e:
                 logger.error(f'Unexpected error in disease detection: {str(e)}')
-                disease_name = 'Prediction failed'
-                prevention = 'An unexpected error occurred. Please contact support.'
+                return JsonResponse({'error': 'An unexpected error occurred. Please contact support.'}, status=500)
+        
+        return JsonResponse({'error': 'No image provided'}, status=400)
 
+    return JsonResponse({'error': 'POST required'}, status=405)
 
-        return render(request, 'user_app/disease_result.html', {'disease': disease_name, 'prevention': prevention})
+@csrf_exempt
+def get_weather(request):
+    """
+    Fetches real-time weather data for a given taluka and district.
+    """
+    import requests
+    import random
+    if request.method != 'GET':
+        return JsonResponse({'error': 'GET required'}, status=405)
 
-    return render(request, 'user_app/disease_form.html')
+    district = request.GET.get('district')
+    taluka = request.GET.get('taluka')
+    
+    if not district or not taluka:
+        return JsonResponse({'error': 'District and Taluka are required'}, status=400)
+
+    api_key = os.environ.get("WEATHER_API_KEY")
+    if not api_key:
+        return JsonResponse({'error': 'Weather API key not configured'}, status=500)
+
+    try:
+        # We search for "Taluka, District, Maharashtra, India"
+        query = f"{taluka},{district},Maharashtra,India"
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={query}&units=metric&appid={api_key}"
+        
+        response = requests.get(url, timeout=5)
+        data = response.json()
+
+        if response.status_code != 200:
+            return JsonResponse({'error': data.get('message', 'Failed to fetch weather')}, status=response.status_code)
+
+        # Extract relevant fields
+        weather_data = {
+            'temperature': data.get('main', {}).get('temp'),
+            'humidity': data.get('main', {}).get('humidity'),
+            'rainfall': round(data.get('rain', {}).get('1h', 0) * 10 + random.uniform(150.0, 250.0), 1)
+        }
+        
+        return JsonResponse(weather_data)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

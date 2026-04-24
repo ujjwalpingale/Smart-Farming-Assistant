@@ -35,22 +35,15 @@ export default function DiseaseDetection() {
     setLoading(true);
     try {
       const res = await predictDisease({ crop_name: cropName, symptoms }, imageFile);
-      const html = await res.text();
-      const diseaseMatch = html.match(/Detected Disease[\s\S]*?<h5[^>]*>([^<]+)<\/h5>/i)
-                        || html.match(/alert-success[^>]*>[\s\S]*?<h5[^>]*>\s*([^<]+)\s*<\/h5>/i);
-      const prevMatch    = html.match(/Prevention[\s\S]*?<p[^>]*class="text-muted"[^>]*>([^<]+)<\/p>/i)
-                        || html.match(/<p class="text-muted">([^<]+)<\/p>/i);
-      if (diseaseMatch) {
+      if (res.ok) {
+        const data = await res.json();
         setResult({
-          disease:    diseaseMatch[1].trim(),
-          prevention: (prevMatch ? prevMatch[1].trim() : t('disease.prevention_hint')).toLowerCase().includes('consult agricultural specialist') 
-                       ? t('disease.prevention_hint') 
-                       : (prevMatch ? prevMatch[1].trim() : t('disease.prevention_hint')),
+          disease: data.disease,
+          prevention: data.prevention
         });
-      } else if (res.ok) {
-        setResult({ disease: 'Unknown', prevention: t('disease.parse_error') || 'Could not parse response.' });
       } else {
-        setError(t('disease.detection_failed') || 'Detection failed.');
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || t('disease.detection_failed') || 'Detection failed.');
       }
     } catch {
       setError(t('common.network_error'));

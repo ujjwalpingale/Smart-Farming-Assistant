@@ -1,109 +1,74 @@
-# Smart Farming Assistant 🌱
+# 🌱 Smart Farming Assistant
 
-Welcome to the **Smart Farming Assistant**, an AI-powered web application built to help farmers, agronomists, and agricultural enthusiasts make data-driven decisions. By combining modern machine learning models with a sleek, responsive web interface, this tool takes the guesswork out of farming and helps maximize crop yields.
-
----
-
-## 🌟 What Does It Do?
-
-This project features three main machine learning modules:
-
-1. **🌾 Crop Recommendation**  
-   Not sure what to plant? Input your soil's N-P-K (Nitrogen, Phosphorus, Potassium) levels, temperature, humidity, pH, and local rainfall. Our trained machine learning model will analyze the environmental data and recommend the optimal crop for your specific field conditions.
-
-2. **🧪 Fertilizer Recommendation**  
-   Provide your soil type, the crop you are growing, and the current nutrient levels in your soil. The system will give you a tailored fertilizer suggestion to fix any nutrient deficiencies and improve soil health without over-fertilizing.
-
-3. **🔬 Plant Disease Detection**  
-   Notice strange spots or wilting on your plant's leaves? Snap a photo and upload it! Our deep-learning Image Classification model will instantly analyze the image, identify the exact disease, and provide actionable prevention advice to save your harvest.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React.js & Vite (Featuring a custom, premium glassmorphism UI)
-- **Backend**: Python & Django (Serving a robust JSON API)
-- **Machine Learning**: Scikit-Learn (for Crop & Fertilizer models) and TensorFlow/Keras (for Image Disease Detection)
+Hi there! This is our MCA final year project. We built this **Smart Farming Assistant** to help our farmers use modern technology like AI and Machine Learning to make better decisions for their farms.
 
 ---
 
-## 🚀 How to Run the Project Locally
+## 🤔 What does this project do?
 
-Follow these steps to clone the repository and get the project running on your own machine. 
+Basically, farming today is hard because of changing weather and soil issues. Our app helps solve this by providing four main tools:
 
-### Prerequisites
-Make sure you have [Python 3.8+](https://www.python.org/downloads/) and [Node.js](https://nodejs.org/) installed on your computer.
+1.  **🌾 Crop Picker**: You put in your soil details (like Nitrogen, Phosphorus, etc.), and the AI tells you which 3 crops will grow best in your field. 
+    *   **The Cool Part**: It can automatically fetch your local weather if you select your District and Taluka in Maharashtra. No need to type in the temperature manually!
+    
+2.  **🧪 Fertilizer Guide**: If your soil is weak in some nutrients, this tool tells you exactly which fertilizer you should use to fix it.
 
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/yourusername/smart_farming.git
-cd smart_farming
-```
+3.  **🔬 Disease Doctor**: If your plant looks sick, just upload a photo. The app uses "Deep Learning" to identify the disease and gives you advice on how to save your crop.
 
-### Step 2: Set Up the Backend (Django)
-
-1. **Create and activate a virtual environment**:
-   ```bash
-   # On Windows
-   python -m venv venv
-   .\venv\Scripts\activate
-   
-   # On Mac/Linux
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-2. **Install the required Python packages**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up environment variables**:
-   Create a `.env` file in the root directory (you can copy `.env.example` if it exists) and add a Django Secret Key:
-   ```env
-   SECRET_KEY=your-super-secret-key-here
-   DEBUG=True
-   ```
-
-4. **Run database migrations**:
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Start the Django backend server**:
-   ```bash
-   python manage.py runserver
-   ```
-   *(Keep this terminal window open and running!)*
-
-### Step 3: Set Up the Frontend (React/Vite)
-
-1. Open a **new, second terminal window** and navigate into the `frontend` folder:
-   ```bash
-   cd frontend
-   ```
-
-2. **Install the Node dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start the frontend development server**:
-   ```bash
-   npm run dev
-   ```
-
-### Step 4: Use the Application!
-Open your web browser and go to the frontend URL:
-👉 **http://localhost:5173/**
-
-*(Note: Ensure both servers are running simultaneously. Do not access the app via the port 8000 backend link directly).*
-
-Create a free account, log in, and start analyzing your agricultural data!
+4.  **🤖 AI Farming Friend (Chatbot)**: We added a chatbot that works like ChatGPT but for farmers. You can ask it anything about farming. 
+    *   It speaks both **English and Marathi**.
+    *   You can even talk to it using your voice if you don't want to type!
 
 ---
 
-## 🧠 Important Notes on ML Models
-- The crop and fertilizer features use pre-trained `.pkl` (pickle) files located in the `ml_models/` folder. 
-- The disease detection feature requires a trained `.h5` deep learning model. The application expects to find a `plant_disease_model.h5` and a `labels.json` file inside the `ml_models/disease/` directory to function correctly. If TensorFlow is not installed, the disease module will safely display an error.
+## 🌍 Language Support (Marathi + English)
+One of the most important parts of our project is that **the entire application works in Marathi**. We wanted to make sure that farmers who are more comfortable with their local language can easily use every single feature of the app. You can switch between English and Marathi with just one click!
 
 ---
-*Built with ❤️ for smarter, sustainable farming.*
+
+## 🛠️ What we used to build this:
+
+*   **Frontend**: React (for a fast and beautiful website).
+*   **Backend**: Django (to handle the data and users).
+*   **Database**: **SQLite** (to store user accounts and farm data securely).
+*   **Brain (AI)**: Google Gemini (for the chat) and Scikit-learn (for the predictions).
+*   **Data**: OpenWeatherMap (to get live weather details).
+
+---
+
+## 🏃‍♂️ How to run it on your computer:
+
+It’s very easy! Just follow these steps:
+
+### Step 0: Download the Project
+1.  Open your terminal or command prompt.
+2.  Clone the project: `git clone https://github.com/your-username/smart-farming-assistant.git`
+3.  Go into the project folder: `cd smart-farming-assistant`
+
+### Step 1: Prepare the Backend (Python)
+1.  Activate your virtual environment: `venv\Scripts\activate`
+2.  Install the needed libraries: `pip install -r requirements.txt`
+3.  Start the server: `python manage.py runserver`
+
+### Step 2: Prepare the Frontend (React)
+1.  Open a **second** terminal and go into the `frontend` folder: `cd frontend`
+2.  Install the packages: `npm install` (only need to do this once).
+3.  Start the website: `npm run dev`
+
+### Step 3: Open the app
+*   Look at the terminal, it will give you a link (usually `http://localhost:5173`). 
+*   Open that link in Chrome, and you're good to go!
+
+---
+
+## 👨‍💻 Developed By (Team of 3)
+1.  **Ujjwal Pingale**
+2.  **Divya Karotra**
+3.  **Chetna Ranglani**
+
+*   **Class**: MCA Final Year
+*   **College**: Vivekanand Education Society’s Institute of Technology (VESIT), Chembur, Mumbai
+*   **Academic Year**: 2026-27
+
+---
+*We hope this project helps in making farming a bit easier and smarter!*

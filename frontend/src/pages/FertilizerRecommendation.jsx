@@ -23,17 +23,12 @@ export default function FertilizerRecommendation() {
     setLoading(true);
     try {
       const res = await predictFertilizer(values);
-      const html = await res.text();
-      
-      const matches = [...html.matchAll(/<h5[^>]*>([^<]+)<\/h5>/gi)];
-      const found = matches.map(m => m[1].trim()).filter(t => t !== 'Recommended Fertilizers');
-
-      if (found.length > 0) {
-        setResults(found);
-      } else if (res.ok) {
-        setResults([t('common.success_msg') || 'Recommendation received.']);
+      if (res.ok) {
+        const data = await res.json();
+        setResults(data.results || []);
       } else {
-        setError(t('common.error_msg') || 'Prediction failed. Please check your inputs.');
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || t('common.error_msg'));
       }
     } catch (err) {
       console.error(err);
