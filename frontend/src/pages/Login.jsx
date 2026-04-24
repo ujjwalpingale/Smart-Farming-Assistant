@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { loginUser } from '../api';
 
 export default function Login({ setUser }) {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword]  = useState('');
   const [error, setError]   = useState('');
@@ -20,11 +22,11 @@ export default function Login({ setUser }) {
         navigate('/');
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || 'Invalid username or password. Please try again.');
+        setError(data.error || t('auth.login_failed') || 'Invalid username or password.');
       }
     } catch (error) {
       console.error("Login Error Details:", error);
-      setError(`Network error: ${error.message || String(error)}`);
+      setError(t('common.network_error'));
     } finally {
       setLoading(false);
     }
@@ -36,12 +38,12 @@ export default function Login({ setUser }) {
       <div className="auth-panel">
         <Link to="/" className="auth-logo">
           <div className="brand-icon">🌱</div>
-          <span style={{ fontWeight: 700, fontSize: '1rem' }}>Smart Farming</span>
+          <span style={{ fontWeight: 700, fontSize: '1rem' }}>{t('nav.brand')}</span>
         </Link>
 
         <div style={{ marginBottom: '2rem' }}>
-          <h1 className="auth-title">Welcome back</h1>
-          <p className="auth-subtitle">Sign in to your account to continue</p>
+          <h1 className="auth-title">{t('auth.login_title')}</h1>
+          <p className="auth-subtitle">{t('auth.login_subtitle')}</p>
         </div>
 
         {error && (
@@ -53,12 +55,12 @@ export default function Login({ setUser }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Username</label>
+            <label className="form-label">{t('auth.username')}</label>
             <input
               id="login-username"
               className="form-input"
               type="text"
-              placeholder="Enter your username"
+              placeholder={t('auth.username_placeholder')}
               value={username}
               onChange={e => setUsername(e.target.value)}
               required
@@ -67,12 +69,12 @@ export default function Login({ setUser }) {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <label className="form-label">{t('auth.password')}</label>
             <input
               id="login-password"
               className="form-input"
               type="password"
-              placeholder="Enter your password"
+              placeholder={t('auth.password_placeholder')}
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
@@ -85,13 +87,13 @@ export default function Login({ setUser }) {
             className="btn btn-primary btn-lg btn-full"
             disabled={loading}
           >
-            {loading ? <><div className="spinner" /> Signing in…</> : 'Sign In →'}
+            {loading ? <><div className="spinner" /> {t('common.loading')}</> : `${t('common.sign_in')} →`}
           </button>
         </form>
 
         <div className="auth-switch">
-          Don't have an account?{' '}
-          <Link to="/register">Create one free</Link>
+          {t('auth.no_account')}{' '}
+          <Link to="/register">{t('auth.create_free')}</Link>
         </div>
       </div>
 
@@ -100,12 +102,11 @@ export default function Login({ setUser }) {
         <div className="auth-visual-content">
           <div style={{ fontSize: '5rem', marginBottom: '1.5rem' }}>🌿</div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-            AI-Powered<br />
-            <span style={{ color: 'var(--accent-green)' }}>Smart Farming</span>
+            {t('auth.ml_powered')}<br />
+            <span style={{ color: 'var(--accent-green)' }}>{t('nav.brand')}</span>
           </h2>
           <p className="text-secondary" style={{ maxWidth: '320px', margin: '0 auto', lineHeight: 1.7 }}>
-            Get personalised crop recommendations, fertilizer guidance, and
-            instant plant disease detection powered by machine learning.
+            {t('home.hero_desc')}
           </p>
 
           <div
@@ -117,9 +118,13 @@ export default function Login({ setUser }) {
               flexWrap: 'wrap',
             }}
           >
-            {['🌾 Crops', '🧪 Fertilizers', '🔬 Diseases'].map(f => (
+            {[
+              { emoji: '🌾', label: 'common.crop' },
+              { emoji: '🧪', label: 'common.fertilizer' },
+              { emoji: '🔬', label: 'common.disease' },
+            ].map(f => (
               <div
-                key={f}
+                key={f.label}
                 style={{
                   padding: '0.5rem 1rem',
                   background: 'rgba(255,255,255,0.05)',
@@ -129,7 +134,7 @@ export default function Login({ setUser }) {
                   color: 'var(--text-secondary)',
                 }}
               >
-                {f}
+                {f.emoji} {t(f.label)}
               </div>
             ))}
           </div>

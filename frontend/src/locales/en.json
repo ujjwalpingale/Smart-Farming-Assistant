@@ -1,0 +1,127 @@
+{
+  "common": {
+    "predict": "Predict Best Crop →",
+    "recommend": "Recommend Fertilizer →",
+    "detect": "Detect Disease →",
+    "submit": "Submit",
+    "loading": "Analysing...",
+    "home": "Home",
+    "crop": "Crop",
+    "fertilizer": "Fertilizer",
+    "disease": "Disease",
+    "sign_in": "Sign In",
+    "register": "Register",
+    "sign_out": "Sign Out",
+    "welcome": "Welcome back",
+    "try_another": "Try Another →",
+    "back_home": "Back to Home",
+    "required": "required",
+    "optional": "optional",
+    "best_match": "Best Match",
+    "alternative": "Alternative Option",
+    "network_error": "Network error. Make sure Django is running.",
+    "select": "Select...",
+    "error": "Error",
+    "try_now": "Try it now",
+    "step": "STEP",
+    "success_msg": "Analysis successful!",
+    "error_msg": "Prediction failed. Please check your inputs."
+  },
+  "nav": {
+    "brand": "Smart Farming"
+  },
+  "home": {
+    "hero_title": "The Future of",
+    "hero_accent": "Farming is Smart",
+    "hero_desc": "Empowering Indian farmers with cutting-edge AI for crop selection, nutrient management, and plant health.",
+    "get_started": "Get Started Now →",
+    "features_title": "Our Intelligent Modules",
+    "stats": {
+      "crops": "Crop Varieties",
+      "ferts": "Fertilizer Types",
+      "classes": "Disease Classes",
+      "accuracy": "ML Accuracy"
+    },
+    "how_it_works": {
+      "title": "How It Works",
+      "subtitle": "Three simple steps to smarter farming",
+      "step1_title": "Provide Data",
+      "step1_desc": "Enter soil parameters or upload a plant image",
+      "step2_title": "AI Analyses",
+      "step2_desc": "Our ML models process your inputs instantly",
+      "step3_title": "Get Insights",
+      "step3_desc": "Receive actionable recommendations to act on"
+    }
+  },
+  "crop": {
+    "title": "Crop Recommendation",
+    "desc": "Enter your soil and climate data to get an AI-powered crop suggestion.",
+    "nitrogen": "Nitrogen",
+    "phosphorus": "Phosphorus",
+    "potassium": "Potassium",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "ph": "Soil pH",
+    "rainfall": "Rainfall",
+    "result_title": "Recommended Crops",
+    "result_desc": "Our AI has analyzed your conditions and identified these top choices for your farm."
+  },
+  "fert": {
+    "title": "Fertilizer Recommendation",
+    "desc": "Enter soil nutrient levels and soil type to receive a targeted fertilizer suggestion.",
+    "soil_type": "Soil Type",
+    "select_soil": "Select soil type",
+    "result_title": "Recommended Fertilizers",
+    "result_desc": "These fertilizers are recommended to optimize your soil's nutrient balance.",
+    "soil_types": {
+      "Acidic Soil": "Acidic Soil",
+      "Alkaline Soil": "Alkaline Soil",
+      "Loamy Soil": "Loamy Soil",
+      "Neutral Soil": "Neutral Soil",
+      "Peaty Soil": "Peaty Soil"
+    }
+  },
+  "disease": {
+    "title": "Plant Disease Detection",
+    "desc": "Upload a clear photo of your plant and let our deep learning model identify the disease.",
+    "crop_name": "Crop Name",
+    "select_crop": "Select a crop...",
+    "symptoms": "Symptoms",
+    "symptoms_placeholder": "Describe visible symptoms — yellowing, spots, wilting...",
+    "image": "Plant Image",
+    "drop_text": "Drag & drop or browse",
+    "drop_hint": "Supports JPG, PNG, BMP",
+    "image_hint": "required · JPG/PNG/BMP · max 5 MB",
+    "result_title": "Detected Disease",
+    "prevention": "Prevention Advice",
+    "prevention_hint": "Consult an agricultural specialist for prevention advice.",
+    "crops": {
+      "Apple": "Apple",
+      "Cherry": "Cherry",
+      "Corn": "Corn",
+      "Grape": "Grape",
+      "Peach": "Peach",
+      "Pepper": "Pepper",
+      "Potato": "Potato",
+      "Tomato": "Tomato"
+    }
+  },
+  "auth": {
+    "login_title": "Welcome back",
+    "login_subtitle": "Sign in to your account to continue",
+    "reg_title": "Create account",
+    "reg_subtitle": "It's free and only takes a minute",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "no_account": "Don't have an account?",
+    "have_account": "Already have an account?",
+    "create_free": "Create one free",
+    "sign_in_now": "Sign in",
+    "join_farmers": "Join thousands of Smart Farmers",
+    "free_forever": "🌱 Free forever",
+    "ml_powered": "🤖 ML-Powered predictions",
+    "instant_analysis": "📊 Instant analysis"
+  }
+}

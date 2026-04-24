@@ -1,8 +1,11 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { logoutUser } from '../api';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   async function handleLogout() {
     try { await logoutUser(); } catch (_) {}
@@ -17,21 +20,22 @@ export default function Navbar({ user, setUser }) {
       <div className="container navbar-inner">
         <Link to="/" className="navbar-brand">
           <div className="brand-icon">🌱</div>
-          <span>Smart Farming</span>
+          <span>{t('nav.brand')}</span>
         </Link>
 
         <ul className="navbar-links">
-          <li><NavLink to="/">Home</NavLink></li>
+          <li><NavLink to="/">{t('common.home')}</NavLink></li>
           {user && (
             <>
-              <li><NavLink to="/crop">🌾 Crop</NavLink></li>
-              <li><NavLink to="/fertilizer">🧪 Fertilizer</NavLink></li>
-              <li><NavLink to="/disease">🔬 Disease</NavLink></li>
+              <li><NavLink to="/crop">🌾 {t('common.crop')}</NavLink></li>
+              <li><NavLink to="/fertilizer">🧪 {t('common.fertilizer')}</NavLink></li>
+              <li><NavLink to="/disease">🔬 {t('common.disease')}</NavLink></li>
             </>
           )}
         </ul>
 
         <div className="navbar-auth">
+          <LanguageSwitcher />
           {user ? (
             <>
               <div className="user-chip">
@@ -43,13 +47,13 @@ export default function Navbar({ user, setUser }) {
                 style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
                 onClick={handleLogout}
               >
-                Sign out
+                {t('common.sign_out')}
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="btn btn-outline">Sign in</Link>
-              <Link to="/register" className="btn btn-primary">Register</Link>
+              <Link to="/login" className="btn btn-outline">{t('common.sign_in')}</Link>
+              <Link to="/register" className="btn btn-primary">{t('common.register')}</Link>
             </>
           )}
         </div>

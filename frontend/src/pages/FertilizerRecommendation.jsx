@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { predictFertilizer } from '../api';
 
 const SOIL_TYPES = [
@@ -7,6 +8,7 @@ const SOIL_TYPES = [
 ];
 
 export default function FertilizerRecommendation() {
+  const { t } = useTranslation();
   const [values, setValues] = useState({ nitrogen: '', phosphorus: '', potassium: '', soil: '' });
   const [results, setResults] = useState([]);
   const [error, setError]   = useState('');
@@ -29,13 +31,13 @@ export default function FertilizerRecommendation() {
       if (found.length > 0) {
         setResults(found);
       } else if (res.ok) {
-        setResults(['Recommendation received — check response.']);
+        setResults([t('common.success_msg') || 'Recommendation received.']);
       } else {
-        setError('Prediction failed. Please check your inputs.');
+        setError(t('common.error_msg') || 'Prediction failed. Please check your inputs.');
       }
     } catch (err) {
       console.error(err);
-      setError('Network error. Make sure Django is running on port 8000.');
+      setError(t('common.network_error'));
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ export default function FertilizerRecommendation() {
         <div className="container" style={{ maxWidth: 560, padding: '3rem 1.5rem' }}>
           <div className="glass-card result-card animate-fade-up">
             <div className="result-icon orange">🧪</div>
-            <div className="result-label">Recommended Fertilizers</div>
+            <div className="result-label">{t('fert.result_title')}</div>
             
             <div className="results-list" style={{ margin: '1.5rem 0' }}>
               {results.map((r, i) => (
@@ -68,18 +70,18 @@ export default function FertilizerRecommendation() {
                     {i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : '🥉 '} {r}
                   </div>
                   <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                    {i === 0 ? 'Best Match' : `Alternative Option ${i}`}
+                    {i === 0 ? t('common.best_match') : `${t('common.alternative')} ${i}`}
                   </div>
                 </div>
               ))}
             </div>
 
             <p className="result-desc">
-              These fertilizers are recommended to optimize your soil's nutrient balance.
+              {t('fert.result_desc')}
             </p>
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" onClick={reset}>Try Another →</button>
-              <Link to="/" className="btn btn-outline">Back to Home</Link>
+              <button className="btn btn-primary" onClick={reset}>{t('common.try_another')}</button>
+              <Link to="/" className="btn btn-outline">{t('common.back_home')}</Link>
             </div>
           </div>
         </div>
@@ -93,9 +95,9 @@ export default function FertilizerRecommendation() {
         <div className="page-header animate-fade-up">
           <div className="page-header-icon" style={{ background: 'rgba(245,158,11,0.12)' }}>🧪</div>
           <div>
-            <div className="page-header-title">Fertilizer Recommendation</div>
+            <div className="page-header-title">{t('fert.title')}</div>
             <div className="page-header-desc">
-              Enter soil nutrient levels and soil type to receive a targeted fertilizer suggestion.
+              {t('fert.desc')}
             </div>
           </div>
         </div>
@@ -110,13 +112,13 @@ export default function FertilizerRecommendation() {
           <form onSubmit={handleSubmit}>
             <div className="form-row">
               {[
-                { key: 'nitrogen',   label: 'Nitrogen',   unit: 'mg/kg' },
-                { key: 'phosphorus', label: 'Phosphorus', unit: 'mg/kg' },
-                { key: 'potassium',  label: 'Potassium',  unit: 'mg/kg' },
+                { key: 'nitrogen',   label: 'crop.nitrogen',   unit: 'mg/kg' },
+                { key: 'phosphorus', label: 'crop.phosphorus', unit: 'mg/kg' },
+                { key: 'potassium',  label: 'crop.potassium',  unit: 'mg/kg' },
               ].map(f => (
                 <div className="form-group" key={f.key}>
                   <label className="form-label">
-                    {f.label}
+                    {t(f.label)}
                     <span className="unit">{f.unit}</span>
                   </label>
                   <input
@@ -134,11 +136,11 @@ export default function FertilizerRecommendation() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Soil Type <span className="unit">(optional)</span></label>
+              <label className="form-label">{t('fert.soil_type')} <span className="unit">({t('common.optional')})</span></label>
               <select id="fert-soil" className="form-select" value={values.soil} onChange={set('soil')}>
-                <option value="">— Select soil type —</option>
+                <option value="">— {t('fert.select_soil')} —</option>
                 {SOIL_TYPES.map(s => (
-                  <option key={s} value={s}>{s}</option>
+                  <option key={s} value={s}>{t(`fert.soil_types.${s}`)}</option>
                 ))}
               </select>
             </div>
@@ -154,8 +156,8 @@ export default function FertilizerRecommendation() {
               }}
             >
               {loading
-                ? <><div className="spinner" /> Analysing…</>
-                : '🧪  Recommend Fertilizer →'}
+                ? <><div className="spinner" /> {t('common.loading')}</>
+                : t('common.recommend')}
             </button>
           </form>
         </div>

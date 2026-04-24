@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function Home({ user }) {
+  const { t } = useTranslation();
+
   return (
     <div className="main-content">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -11,28 +14,26 @@ export default function Home({ user }) {
             <span>AI-Powered Agricultural Intelligence</span>
           </div>
           <h1 className="hero-title">
-            Grow Smarter with<br />
-            <span className="gradient-text">Smart Farming AI</span>
+            {t('home.hero_title')}<br />
+            <span className="gradient-text">{t('home.hero_accent')}</span>
           </h1>
           <p className="hero-subtitle">
-            Harness the power of machine learning to get personalised crop
-            recommendations, fertilizer guidance, and instant plant disease
-            detection — all in one platform.
+            {t('home.hero_desc')}
           </p>
           {!user && (
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
               <Link to="/register" className="btn btn-primary btn-lg">
-                Get Started Free →
+                {t('common.register')}
               </Link>
               <Link to="/login" className="btn btn-outline btn-lg">
-                Sign In
+                {t('common.sign_in')}
               </Link>
             </div>
           )}
           {user && (
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
               <Link to="/crop" className="btn btn-primary btn-lg">
-                Start Predicting →
+                {t('home.get_started')}
               </Link>
             </div>
           )}
@@ -41,14 +42,14 @@ export default function Home({ user }) {
         {/* ── Stats ──────────────────────────────────────────────────────── */}
         <div className="stats-strip animate-fade-up delay-1">
           {[
-            { value: '22+', label: 'Crop Varieties' },
-            { value: '10+', label: 'Fertilizer Types' },
-            { value: '38+', label: 'Disease Classes' },
-            { value: '99%', label: 'ML Accuracy' },
+            { value: '22+', label: 'home.stats.crops' },
+            { value: '10+', label: 'home.stats.ferts' },
+            { value: '38+', label: 'home.stats.classes' },
+            { value: '99%', label: 'home.stats.accuracy' },
           ].map(({ value, label }) => (
             <div className="stat-item" key={label}>
               <div className="stat-value">{value}</div>
-              <div className="stat-label">{label}</div>
+              <div className="stat-label">{t(label)}</div>
             </div>
           ))}
         </div>
@@ -60,14 +61,12 @@ export default function Home({ user }) {
             className="feature-card glass-card green"
           >
             <div className="feature-icon green">🌾</div>
-            <div className="feature-title">Crop Recommendation</div>
+            <div className="feature-title">{t('crop.title')}</div>
             <p className="feature-desc">
-              Input your soil's N-P-K ratios, temperature, humidity, pH, and
-              rainfall. Our trained Random Forest model will recommend the
-              optimal crop for maximum yield.
+              {t('crop.desc')}
             </p>
             <div className="feature-cta">
-              <span>Try it now</span>
+              <span>{t('common.try_now')}</span>
               <span>→</span>
             </div>
           </Link>
@@ -77,14 +76,12 @@ export default function Home({ user }) {
             className="feature-card glass-card amber"
           >
             <div className="feature-icon amber">🧪</div>
-            <div className="feature-title">Fertilizer Recommendation</div>
+            <div className="feature-title">{t('fert.title')}</div>
             <p className="feature-desc">
-              Provide nutrient levels and soil type to get a tailored fertilizer
-              suggestion. Reduce waste and maximise soil health with
-              data-driven insights.
+              {t('fert.desc')}
             </p>
             <div className="feature-cta">
-              <span>Try it now</span>
+              <span>{t('common.try_now')}</span>
               <span>→</span>
             </div>
           </Link>
@@ -94,14 +91,12 @@ export default function Home({ user }) {
             className="feature-card glass-card rose"
           >
             <div className="feature-icon rose">🔬</div>
-            <div className="feature-title">Disease Detection</div>
+            <div className="feature-title">{t('disease.title')}</div>
             <p className="feature-desc">
-              Upload a photo of your plant and let our deep learning model
-              identify diseases instantly. Get prevention advice before
-              damage spreads.
+              {t('disease.desc')}
             </p>
             <div className="feature-cta">
-              <span>Try it now</span>
+              <span>{t('common.try_now')}</span>
               <span>→</span>
             </div>
           </Link>
@@ -113,10 +108,10 @@ export default function Home({ user }) {
             className="animate-fade-up"
             style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.5rem' }}
           >
-            How It Works
+            {t('home.how_it_works.title')}
           </h2>
           <p className="text-secondary animate-fade-up delay-1" style={{ marginBottom: '2.5rem' }}>
-            Three simple steps to smarter farming
+            {t('home.how_it_works.subtitle')}
           </p>
           <div
             style={{
@@ -126,9 +121,9 @@ export default function Home({ user }) {
             }}
           >
             {[
-              { step: '01', emoji: '✍️', title: 'Provide Data',     desc: 'Enter soil parameters or upload a plant image' },
-              { step: '02', emoji: '🤖', title: 'AI Analyses',      desc: 'Our ML models process your inputs instantly' },
-              { step: '03', emoji: '📋', title: 'Get Insights',     desc: 'Receive actionable recommendations to act on' },
+              { step: '01', emoji: '✍️', title: 'home.how_it_works.step1_title', desc: 'home.how_it_works.step1_desc' },
+              { step: '02', emoji: '🤖', title: 'home.how_it_works.step2_title', desc: 'home.how_it_works.step2_desc' },
+              { step: '03', emoji: '📋', title: 'home.how_it_works.step3_title', desc: 'home.how_it_works.step3_desc' },
             ].map(({ step, emoji, title, desc }, i) => (
               <div
                 key={step}
@@ -144,11 +139,11 @@ export default function Home({ user }) {
                     marginBottom: '0.75rem',
                   }}
                 >
-                  STEP {step}
+                  {t('common.step')} {step}
                 </div>
                 <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{emoji}</div>
-                <div style={{ fontWeight: 700, marginBottom: '0.4rem' }}>{title}</div>
-                <div className="text-secondary text-sm">{desc}</div>
+                <div style={{ fontWeight: 700, marginBottom: '0.4rem' }}>{t(title)}</div>
+                <div className="text-secondary text-sm">{t(desc)}</div>
               </div>
             ))}
           </div>

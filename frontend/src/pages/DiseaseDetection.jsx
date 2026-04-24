@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { predictDisease } from '../api';
 
 export default function DiseaseDetection() {
+  const { t } = useTranslation();
   const [cropName, setCropName]   = useState('');
   const [symptoms, setSymptoms]   = useState('');
   const [imageFile, setImageFile] = useState(null);
@@ -27,7 +29,7 @@ export default function DiseaseDetection() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!imageFile) { setError('Please upload a plant image.'); return; }
+    if (!imageFile) { setError(t('disease.image_required') || 'Please upload a plant image.'); return; }
     setError('');
     setResult(null);
     setLoading(true);
@@ -41,15 +43,17 @@ export default function DiseaseDetection() {
       if (diseaseMatch) {
         setResult({
           disease:    diseaseMatch[1].trim(),
-          prevention: prevMatch ? prevMatch[1].trim() : 'Consult an agricultural specialist for prevention advice.',
+          prevention: (prevMatch ? prevMatch[1].trim() : t('disease.prevention_hint')).toLowerCase().includes('consult agricultural specialist') 
+                       ? t('disease.prevention_hint') 
+                       : (prevMatch ? prevMatch[1].trim() : t('disease.prevention_hint')),
         });
       } else if (res.ok) {
-        setResult({ disease: 'Unknown', prevention: 'Could not parse response from server.' });
+        setResult({ disease: 'Unknown', prevention: t('disease.parse_error') || 'Could not parse response.' });
       } else {
-        setError('Detection failed. Please try with a different image.');
+        setError(t('disease.detection_failed') || 'Detection failed.');
       }
     } catch {
-      setError('Network error. Make sure Django is running on port 8000.');
+      setError(t('common.network_error'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +83,7 @@ export default function DiseaseDetection() {
               />
             )}
             <div className="result-icon rose" style={{ margin: '0 auto 1.5rem' }}>🔬</div>
-            <div className="result-label">Detected Disease</div>
+            <div className="result-label">{t('disease.result_title')}</div>
             <div className="result-value" style={{ fontSize: '1.8rem', marginBottom: '1.25rem' }}>
               {result.disease}
             </div>
@@ -94,7 +98,7 @@ export default function DiseaseDetection() {
                   textTransform: 'uppercase', color: 'var(--accent-rose)', marginBottom: '0.5rem',
                 }}
               >
-                🛡 Prevention Advice
+                🛡 {t('disease.prevention')}
               </div>
               <p className="text-secondary text-sm" style={{ lineHeight: 1.7 }}>
                 {result.prevention}
@@ -102,8 +106,8 @@ export default function DiseaseDetection() {
             </div>
 
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" onClick={reset}>Analyse Another →</button>
-              <Link to="/" className="btn btn-outline">Back to Home</Link>
+              <button className="btn btn-primary" onClick={reset}>{t('common.try_another')}</button>
+              <Link to="/" className="btn btn-outline">{t('common.back_home')}</Link>
             </div>
           </div>
         </div>
@@ -117,10 +121,9 @@ export default function DiseaseDetection() {
         <div className="page-header animate-fade-up">
           <div className="page-header-icon" style={{ background: 'rgba(244,63,94,0.12)' }}>🔬</div>
           <div>
-            <div className="page-header-title">Plant Disease Detection</div>
+            <div className="page-header-title">{t('disease.title')}</div>
             <div className="page-header-desc">
-              Upload a clear photo of your plant and let our deep learning model
-              identify the disease.
+              {t('disease.desc')}
             </div>
           </div>
         </div>
@@ -134,7 +137,7 @@ export default function DiseaseDetection() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label">Crop Name</label>
+              <label className="form-label">{t('disease.crop_name')}</label>
               <select
                 id="disease-crop"
                 className="form-select"
@@ -142,24 +145,19 @@ export default function DiseaseDetection() {
                 onChange={e => setCropName(e.target.value)}
                 required
               >
-                <option value="" disabled>Select a crop...</option>
-                <option value="Apple">Apple</option>
-                <option value="Cherry">Cherry</option>
-                <option value="Corn">Corn</option>
-                <option value="Grape">Grape</option>
-                <option value="Peach">Peach</option>
-                <option value="Pepper">Pepper</option>
-                <option value="Potato">Potato</option>
-                <option value="Tomato">Tomato</option>
+                <option value="" disabled>{t('disease.select_crop')}</option>
+                {['Apple', 'Cherry', 'Corn', 'Grape', 'Peach', 'Pepper', 'Potato', 'Tomato'].map(c => (
+                  <option key={c} value={c}>{t(`disease.crops.${c}`)}</option>
+                ))}
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Symptoms <span className="unit">(optional)</span></label>
+              <label className="form-label">{t('disease.symptoms')} <span className="unit">({t('common.optional')})</span></label>
               <textarea
                 id="disease-symptoms"
                 className="form-textarea"
-                placeholder="Describe visible symptoms — yellowing, spots, wilting…"
+                placeholder={t('disease.symptoms_placeholder')}
                 value={symptoms}
                 onChange={e => setSymptoms(e.target.value)}
                 rows={3}
@@ -167,7 +165,7 @@ export default function DiseaseDetection() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Plant Image <span className="unit">required · JPG/PNG/BMP · max 5 MB</span></label>
+              <label className="form-label">{t('disease.image')} <span className="unit">{t('disease.image_hint')}</span></label>
               <div
                 className={`file-drop${dragOver ? ' drag-over' : ''}`}
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
@@ -204,9 +202,9 @@ export default function DiseaseDetection() {
                   <>
                     <div className="file-drop-icon">📷</div>
                     <div className="file-drop-text">
-                      Drag & drop or <span style={{ color: 'var(--accent-green)' }}>browse</span>
+                      {t('disease.drop_text')}
                     </div>
-                    <div className="file-drop-hint">Supports JPG, PNG, BMP, GIF</div>
+                    <div className="file-drop-hint">{t('disease.drop_hint')}</div>
                   </>
                 )}
               </div>
@@ -223,8 +221,8 @@ export default function DiseaseDetection() {
               }}
             >
               {loading
-                ? <><div className="spinner" /> Detecting…</>
-                : '🔬  Detect Disease →'}
+                ? <><div className="spinner" /> {t('common.loading')}</>
+                : t('common.detect')}
             </button>
           </form>
         </div>

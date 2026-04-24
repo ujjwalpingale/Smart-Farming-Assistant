@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { predictCrop } from '../api';
 
 const FIELDS = [
-  { key: 'nitrogen',    label: 'Nitrogen',     unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
-  { key: 'phosphorus',  label: 'Phosphorus',   unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
-  { key: 'potassium',   label: 'Potassium',    unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
-  { key: 'temperature', label: 'Temperature',  unit: '°C',    min: 0, max: 60,  step: 0.1, placeholder: '0–60' },
-  { key: 'humidity',    label: 'Humidity',     unit: '%',     min: 0, max: 100, step: 0.1, placeholder: '0–100' },
-  { key: 'ph',          label: 'Soil pH',      unit: 'pH',    min: 0, max: 14,  step: 0.1, placeholder: '0–14' },
-  { key: 'rainfall',    label: 'Rainfall',     unit: 'mm',    min: 0, max: 500, step: 0.1, placeholder: '0–500' },
+  { key: 'nitrogen',    label: 'crop.nitrogen',    unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
+  { key: 'phosphorus',  label: 'crop.phosphorus',  unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
+  { key: 'potassium',   label: 'crop.potassium',   unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
+  { key: 'temperature', label: 'crop.temperature', unit: '°C',    min: 0, max: 60,  step: 0.1, placeholder: '0–60' },
+  { key: 'humidity',    label: 'crop.humidity',    unit: '%',     min: 0, max: 100, step: 0.1, placeholder: '0–100' },
+  { key: 'ph',          label: 'crop.ph',          unit: 'pH',    min: 0, max: 14,  step: 0.1, placeholder: '0–14' },
+  { key: 'rainfall',    label: 'crop.rainfall',    unit: 'mm',    min: 0, max: 500, step: 0.1, placeholder: '0–500' },
 ];
 
 export default function CropRecommendation() {
+  const { t } = useTranslation();
   const [values, setValues] = useState({});
-  const [results, setResults] = useState([]); // Changed to list
+  const [results, setResults] = useState([]);
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,20 +31,19 @@ export default function CropRecommendation() {
       const res = await predictCrop(values);
       const html = await res.text();
       
-      // Extract all H5 contents from the result list
       const matches = [...html.matchAll(/<h5[^>]*>([^<]+)<\/h5>/gi)];
       const found = matches.map(m => m[1].trim()).filter(t => t !== 'Recommended Crops');
       
       if (found.length > 0) {
         setResults(found);
       } else if (res.ok) {
-        setResults(['Prediction received — check Django log.']);
+        setResults([t('common.success_msg') || 'Prediction received.']);
       } else {
-        setError('Prediction failed. Please check your inputs.');
+        setError(t('common.error_msg') || 'Prediction failed. Please check your inputs.');
       }
     } catch (err) {
       console.error(err);
-      setError('Network error. Make sure Django is running on port 8000.');
+      setError(t('common.network_error'));
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,7 @@ export default function CropRecommendation() {
         <div className="container" style={{ maxWidth: 560, padding: '3rem 1.5rem' }}>
           <div className="glass-card result-card animate-fade-up">
             <div className="result-icon green">🌾</div>
-            <div className="result-label">Recommended Crops</div>
+            <div className="result-label">{t('crop.result_title')}</div>
             
             <div className="results-list" style={{ margin: '1.5rem 0' }}>
               {results.map((r, i) => (
@@ -72,21 +73,21 @@ export default function CropRecommendation() {
                     color: i === 0 ? 'var(--accent-green)' : 'inherit',
                     fontWeight: 700 
                   }}>
-                    {i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : '🥉 '} {r}
+                    {i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : '🥉 '} {t(`crop.result_crops.${r.toLowerCase()}`, r)}
                   </div>
                   <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                    {i === 0 ? 'Best Match' : `Alternative Option ${i}`}
+                    {i === 0 ? t('common.best_match') : `${t('common.alternative')} ${i}`}
                   </div>
                 </div>
               ))}
             </div>
 
             <p className="result-desc">
-              Our AI has analyzed your conditions and identified these top choices for your farm.
+              {t('crop.result_desc')}
             </p>
             <div className="flex gap-3 justify-center" style={{ flexWrap: 'wrap' }}>
-              <button className="btn btn-primary" onClick={reset}>Try Another →</button>
-              <Link to="/" className="btn btn-outline">Back to Home</Link>
+              <button className="btn btn-primary" onClick={reset}>{t('common.try_another')}</button>
+              <Link to="/" className="btn btn-outline">{t('common.back_home')}</Link>
             </div>
           </div>
         </div>
@@ -100,9 +101,9 @@ export default function CropRecommendation() {
         <div className="page-header animate-fade-up">
           <div className="page-header-icon" style={{ background: 'rgba(34,197,94,0.12)' }}>🌾</div>
           <div>
-            <div className="page-header-title">Crop Recommendation</div>
+            <div className="page-header-title">{t('crop.title')}</div>
             <div className="page-header-desc">
-              Enter your soil and climate data to get an AI-powered crop suggestion.
+              {t('crop.desc')}
             </div>
           </div>
         </div>
@@ -119,7 +120,7 @@ export default function CropRecommendation() {
               {FIELDS.map(f => (
                 <div className="form-group" key={f.key}>
                   <label className="form-label">
-                    {f.label}
+                    {t(f.label)}
                     <span className="unit">{f.unit}</span>
                   </label>
                   <input
@@ -145,8 +146,8 @@ export default function CropRecommendation() {
               disabled={loading}
             >
               {loading
-                ? <><div className="spinner" /> Analysing…</>
-                : '🌾  Predict Best Crop →'}
+                ? <><div className="spinner" /> {t('common.loading')}</>
+                : t('common.predict')}
             </button>
           </form>
         </div>
