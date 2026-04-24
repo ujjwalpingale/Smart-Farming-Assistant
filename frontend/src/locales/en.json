@@ -122,6 +122,29 @@
     "join_farmers": "Join thousands of Smart Farmers",
     "free_forever": "🌱 Free forever",
     "ml_powered": "🤖 ML-Powered predictions",
-    "instant_analysis": "📊 Instant analysis"
+    "instant_analysis": "📊 Instant analysis",
+    "errors": {
+      "mismatch": "Passwords do not match.",
+      "invalid": "Invalid username or password.",
+      "exists": "Username already exists.",
+      "failed": "Registration failed."
+    },
+    "rules": {
+      "len": "12+ characters",
+      "upper": "1 uppercase",
+      "special": "1 special char",
+      "numeric": "mixed characters"
+    }
+  },
+  "chatbot": {
+    "title": "Agriculture AI Assistant",
+    "subtitle": "Ask me anything about farming, crops, or weather",
+    "placeholder": "Type your message here...",
+    "voice_start": "Listening...",
+    "voice_stop": "Speech stopped",
+    "quick_q1": "Best crop for rainy season?",
+    "quick_q2": "How to improve soil fertility?",
+    "quick_q3": "Which fertilizer for wheat?",
+    "error": "Failed to get response from AI."
   }
 }

@@ -30,6 +30,7 @@ export default function Navbar({ user, setUser }) {
               <li><NavLink to="/crop">🌾 {t('common.crop')}</NavLink></li>
               <li><NavLink to="/fertilizer">🧪 {t('common.fertilizer')}</NavLink></li>
               <li><NavLink to="/disease">🔬 {t('common.disease')}</NavLink></li>
+              <li><NavLink to="/chatbot">🤖 {t('chatbot.title')}</NavLink></li>
             </>
           )}
         </ul>
