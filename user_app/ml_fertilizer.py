@@ -59,8 +59,8 @@ soil_list = _safe_load_file(
     ['Acidic Soil', 'Alkaline Soil', 'Loamy Soil', 'Neutral Soil', 'Peaty Soil']
 )
 
-# Lazy model and encoder loader
 _MODEL = None
+_MODEL_mtime = 0
 _SOIL_ENCODER = None
 
 def _load_soil_encoder():
@@ -84,19 +84,16 @@ def _load_soil_encoder():
 
 
 def _load_model():
-    global _MODEL
-    if _MODEL is not None:
-        return _MODEL
-    
+    global _MODEL, _MODEL_mtime
     if not os.path.exists(MODEL_PATH):
         logger.warning(f'Fertilizer model not found at {MODEL_PATH}')
         return None
     
+    current_mtime = os.path.getmtime(MODEL_PATH)
+    if _MODEL is not None and _MODEL_mtime == current_mtime:
+        return _MODEL
+
     with _lock:
-        # Double-check after acquiring lock
-        if _MODEL is not None:
-            return _MODEL
-        
         try:
             if joblib:
                 candidate = joblib.load(MODEL_PATH)
@@ -112,10 +109,10 @@ def _load_model():
         # If it's a sklearn estimator, it will have predict
         if hasattr(candidate, 'predict'):
             _MODEL = candidate
+            _MODEL_mtime = current_mtime
             logger.info('Fertilizer model loaded successfully')
             return _MODEL
 
-        # If it's a numpy array of labels/headers, it's not a model
         if isinstance(candidate, (np.ndarray, list)):
             logger.warning('Loaded fertilizer artifact is not a model (numpy/list). Falling back to heuristic.')
             return None
@@ -130,18 +127,24 @@ def _use_model_predict(nitrogen, phosphorus, potassium, soil=None):
         return None
 
     try:
-        # Encode soil if provided
+        # Encode soil if provided (normalize string e.g. "Acidic Soil" -> "Acidic")
         soil_idx = 0
         if soil:
+            soil_clean = str(soil).replace(' Soil', '').strip()
             encoder = _load_soil_encoder()
-            if encoder:
+            if encoder and hasattr(encoder, 'transform'):
                 try:
-                    if hasattr(encoder, 'transform'):
+                    soil_idx = encoder.transform([soil_clean])[0]
+                except Exception:
+                    try:
                         soil_idx = encoder.transform([soil])[0]
-                    else:
-                        soil_idx = soil_list.index(soil)
-                except:
-                    soil_idx = 0
+                    except Exception:
+                        soil_idx = 0
+            else:
+                for idx, s in enumerate(soil_list):
+                    if soil_clean.lower() in s.lower():
+                        soil_idx = idx
+                        break
 
         n_features = getattr(model, 'n_features_in_', 4)
         feat = np.zeros((1, n_features))

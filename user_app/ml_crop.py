@@ -1,3 +1,4 @@
+
 import os
 import numpy as np
 import threading
@@ -31,22 +32,21 @@ ENCODER_PATH = os.path.join(
 
 # Load artifacts
 _crop_model = None
+_crop_model_mtime = 0
 _crop_encoder = None
+_crop_encoder_mtime = 0
 
 def _load_model():
-    global _crop_model
-    if _crop_model is not None:
-        return _crop_model
-    
+    global _crop_model, _crop_model_mtime
     if not os.path.exists(MODEL_PATH):
         logger.warning(f'Crop model not found at {MODEL_PATH}')
         return None
+
+    current_mtime = os.path.getmtime(MODEL_PATH)
+    if _crop_model is not None and _crop_model_mtime == current_mtime:
+        return _crop_model
     
     with _lock:
-        # Double-check after acquiring lock
-        if _crop_model is not None:
-            return _crop_model
-        
         try:
             if joblib:
                 obj = joblib.load(MODEL_PATH)
@@ -59,6 +59,7 @@ def _load_model():
             # Check if it's a trained sklearn model
             if hasattr(obj, 'predict'):
                 _crop_model = obj
+                _crop_model_mtime = current_mtime
                 logger.info('Crop model loaded successfully')
                 return _crop_model
             else:
@@ -69,19 +70,16 @@ def _load_model():
     return None
 
 def _load_encoder():
-    global _crop_encoder
-    if _crop_encoder is not None:
-        return _crop_encoder
-    
+    global _crop_encoder, _crop_encoder_mtime
     if not os.path.exists(ENCODER_PATH):
         logger.warning(f'Crop encoder not found at {ENCODER_PATH}')
         return None
+
+    current_mtime = os.path.getmtime(ENCODER_PATH)
+    if _crop_encoder is not None and _crop_encoder_mtime == current_mtime:
+        return _crop_encoder
     
     with _lock:
-        # Double-check after acquiring lock
-        if _crop_encoder is not None:
-            return _crop_encoder
-        
         try:
             if joblib:
                 obj = joblib.load(ENCODER_PATH)
@@ -94,6 +92,7 @@ def _load_encoder():
             # Check if it's a LabelEncoder with inverse_transform
             if hasattr(obj, 'inverse_transform'):
                 _crop_encoder = obj
+                _crop_encoder_mtime = current_mtime
                 logger.info('Crop encoder loaded successfully')
                 return _crop_encoder
             else:

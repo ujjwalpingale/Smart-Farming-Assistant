@@ -23,6 +23,13 @@ export default function LanguageSwitcher() {
       >
         मराठी
       </button>
+      <button 
+        className={`btn btn-sm ${i18n.language === 'hi' ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => changeLanguage('hi')}
+        style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+      >
+        हिंदी
+      </button>
     </div>
   );
 }

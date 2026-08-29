@@ -1,0 +1,72 @@
+{
+  "best_model": "Extra Trees",
+  "candidates": {
+    "Random Forest": {
+      "Accuracy": 0.9942857142857143,
+      "Precision": 0.9942954741059591,
+      "Recall": 0.9942857142857143,
+      "F1-Score": 0.9942738083301323,
+      "CV Score Mean": 0.9908928571428571,
+      "CV Score Std": 0.001312226647919555,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.005714285714285672
+    },
+    "XGBoost": {
+      "Accuracy": 0.9942857142857143,
+      "Precision": 0.9942818375654198,
+      "Recall": 0.9942857142857143,
+      "F1-Score": 0.9942793814212953,
+      "CV Score Mean": 0.99125,
+      "CV Score Std": 0.0014285714285714236,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.005714285714285672
+    },
+    "Extra Trees": {
+      "Accuracy": 0.995,
+      "Precision": 0.9950062061599746,
+      "Recall": 0.995,
+      "F1-Score": 0.9949889981015759,
+      "CV Score Mean": 0.9914285714285714,
+      "CV Score Std": 0.0007142857142857118,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.0050000000000000044
+    },
+    "Gradient Boosting": {
+      "Accuracy": 0.9942857142857143,
+      "Precision": 0.9943442767822228,
+      "Recall": 0.9942857142857143,
+      "F1-Score": 0.994277920064878,
+      "CV Score Mean": 0.9901785714285716,
+      "CV Score Std": 0.00056469243931578,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.005714285714285672
+    }
+  },
+  "features": [
+    "N",
+    "P",
+    "K",
+    "soil_type"
+  ],
+  "fertilizers": [
+    "14-35-14",
+    "17-17-17",
+    "Balanced NPK Fertilizer",
+    "Compost",
+    "DAP",
+    "Gypsum",
+    "Lime",
+    "Muriate of Potash",
+    "Organic Fertilizer",
+    "Urea"
+  ],
+  "soil_types": [
+    "Acidic",
+    "Alkaline",
+    "Clayey",
+    "Loamy",
+    "Neutral",
+    "Peaty",
+    "Sandy"
+  ]
+}

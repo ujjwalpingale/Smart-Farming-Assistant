@@ -1,0 +1,78 @@
+{
+  "best_model": "Random Forest",
+  "candidates": {
+    "Random Forest": {
+      "Accuracy": 0.9977272727272727,
+      "Precision": 0.9978017032472479,
+      "Recall": 0.9977272727272727,
+      "F1-Score": 0.9977335615832916,
+      "CV Score Mean": 0.9968181818181818,
+      "CV Score Std": 0.0013730734060902784,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.002272727272727315
+    },
+    "XGBoost": {
+      "Accuracy": 0.9963636363636363,
+      "Precision": 0.9964459917442975,
+      "Recall": 0.9963636363636363,
+      "F1-Score": 0.9963719044997081,
+      "CV Score Mean": 0.9943181818181819,
+      "CV Score Std": 0.0013917555356722454,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.0036363636363636598
+    },
+    "Extra Trees": {
+      "Accuracy": 0.9972727272727273,
+      "Precision": 0.9973161263679167,
+      "Recall": 0.9972727272727273,
+      "F1-Score": 0.9972722044300878,
+      "CV Score Mean": 0.9967045454545455,
+      "CV Score Std": 0.001410190187044405,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.0027272727272726893
+    },
+    "Gradient Boosting": {
+      "Accuracy": 0.9936363636363637,
+      "Precision": 0.9937791783596621,
+      "Recall": 0.9936363636363637,
+      "F1-Score": 0.9936600545037713,
+      "CV Score Mean": 0.9936363636363635,
+      "CV Score Std": 0.0020454545454545404,
+      "Train Accuracy": 1.0,
+      "Overfit Diff": 0.006363636363636349
+    }
+  },
+  "features": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "classes": [
+    "Apple",
+    "Banana",
+    "Blackgram",
+    "Chickpea",
+    "Coconut",
+    "Coffee",
+    "Cotton",
+    "Grapes",
+    "Jute",
+    "Kidneybeans",
+    "Lentil",
+    "Maize",
+    "Mango",
+    "Mothbeans",
+    "Mungbean",
+    "Muskmelon",
+    "Orange",
+    "Papaya",
+    "Pigeonpeas",
+    "Pomegranate",
+    "Rice",
+    "Watermelon"
+  ]
+}

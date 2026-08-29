@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 from .chatbot_views import chatbot_api
 
@@ -15,4 +15,6 @@ urlpatterns = [
     path('management/change-password/', views.change_password_admin, name='change_password_admin'),
     path('chatbot/', chatbot_api, name='chatbot_api'),
     path('api/weather/', views.get_weather, name='get_weather'),
+    path('api/user/', views.current_user, name='current_user'),
+    re_path(r'^.*$', views.serve_react_app, name='serve_react_app'),
 ]

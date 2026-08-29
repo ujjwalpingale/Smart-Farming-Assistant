@@ -244,19 +244,42 @@ def logout_view(request):
 
 
 def home(request):
-    """Simple home page linking to the three main features."""
-    return render(request, 'user_app/home.html')
+    """Home page rendering React SPA index.html or fallback."""
+    try:
+        return render(request, 'index.html')
+    except Exception:
+        return render(request, 'user_app/home.html')
 
 
-@login_required
+def serve_react_app(request):
+    """Catch-all view for React SPA client-side routing."""
+    try:
+        return render(request, 'index.html')
+    except Exception:
+        return redirect('home')
+
+
+@csrf_exempt
+def current_user(request):
+    """Return session authentication and admin privilege status for frontend sync."""
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'authenticated': True,
+            'username': request.user.username,
+            'is_staff': request.user.is_staff,
+            'is_superuser': request.user.is_superuser
+        })
+    return JsonResponse({'authenticated': False})
+
+
 @csrf_exempt
 def crop_recommendation(request):
     if request.method == 'POST':
         try:
             # Validate and convert input data
-            nitrogen = int(request.POST.get('nitrogen', 0))
-            phosphorus = int(request.POST.get('phosphorus', 0))
-            potassium = int(request.POST.get('potassium', 0))
+            nitrogen = float(request.POST.get('nitrogen', 0))
+            phosphorus = float(request.POST.get('phosphorus', 0))
+            potassium = float(request.POST.get('potassium', 0))
             temperature = float(request.POST.get('temperature', 0))
             humidity = float(request.POST.get('humidity', 0))
             ph = float(request.POST.get('ph', 0))
@@ -283,21 +306,39 @@ def crop_recommendation(request):
             return JsonResponse({'error': f'Invalid input: {str(e)}'}, status=400)
 
         results = predict_crop(data)
+
+        # Log prediction query to database
+        try:
+            user_obj = request.user if request.user.is_authenticated else None
+            top_result = results[0] if results else 'Unknown'
+            CropInput.objects.create(
+                user=user_obj,
+                nitrogen=nitrogen,
+                phosphorus=phosphorus,
+                potassium=potassium,
+                temperature=temperature,
+                humidity=humidity,
+                ph=ph,
+                rainfall=rainfall,
+                result=top_result
+            )
+        except Exception as e:
+            logger.warning(f"Failed to log CropInput: {e}")
+
         return JsonResponse({'results': results})
 
     return JsonResponse({'error': 'POST required'}, status=405)
 
 
-@login_required
 @csrf_exempt
 def fertilizer_recommendation(request):
     if request.method == 'POST':
         try:
             # Validate and convert input data
-            nitrogen = int(request.POST.get('nitrogen', 0))
-            phosphorus = int(request.POST.get('phosphorus', 0))
-            potassium = int(request.POST.get('potassium', 0))
-            soil = request.POST.get('soil', None)
+            nitrogen = float(request.POST.get('nitrogen', 0))
+            phosphorus = float(request.POST.get('phosphorus', 0))
+            potassium = float(request.POST.get('potassium', 0))
+            soil = request.POST.get('soil', '')
             
             # Validate ranges
             if not (0 <= nitrogen <= 200):
@@ -310,12 +351,27 @@ def fertilizer_recommendation(request):
             return JsonResponse({'error': f'Invalid input: {str(e)}'}, status=400)
 
         results = predict_fertilizer([nitrogen, phosphorus, potassium, soil])
+
+        # Log prediction query to database
+        try:
+            user_obj = request.user if request.user.is_authenticated else None
+            top_rec = results[0] if results else 'Unknown'
+            FertilizerInput.objects.create(
+                user=user_obj,
+                nitrogen=nitrogen,
+                phosphorus=phosphorus,
+                potassium=potassium,
+                soil=soil,
+                recommended_fertilizer=top_rec
+            )
+        except Exception as e:
+            logger.warning(f"Failed to log FertilizerInput: {e}")
+
         return JsonResponse({'results': results})
 
     return JsonResponse({'error': 'POST required'}, status=405)
 
 
-@login_required
 @csrf_exempt
 def disease_detection(request):
     if request.method == 'POST':
@@ -328,10 +384,24 @@ def disease_detection(request):
         if image:
             try:
                 disease_name, prevention, _ = predict_disease(image)
+
+                # Log prediction query to database
+                try:
+                    user_obj = request.user if request.user.is_authenticated else None
+                    DiseaseInput.objects.create(
+                        user=user_obj,
+                        crop_name=crop_name,
+                        symptoms=symptoms,
+                        disease_name=disease_name,
+                        prevention=prevention
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to log DiseaseInput: {e}")
+
                 return JsonResponse({'disease': disease_name, 'prevention': prevention})
             except ValueError as e:
                 logger.warning(f'Disease prediction validation error: {str(e)}')
-                return JsonResponse({'error': 'Invalid image or file. Please upload a valid image.'}, status=400)
+                return JsonResponse({'error': f'{str(e)}'}, status=400)
             except RuntimeError as e:
                 logger.error(f'Disease prediction error: {str(e)}')
                 return JsonResponse({'error': 'An error occurred during prediction. Please try again.'}, status=500)
@@ -346,42 +416,71 @@ def disease_detection(request):
 @csrf_exempt
 def get_weather(request):
     """
-    Fetches real-time weather data for a given taluka and district.
+    Fetches real-time weather data for a given taluka and district with automatic query fallbacks.
     """
     import requests
     import random
     if request.method != 'GET':
         return JsonResponse({'error': 'GET required'}, status=405)
 
-    district = request.GET.get('district')
-    taluka = request.GET.get('taluka')
+    district = (request.GET.get('district') or '').strip()
+    taluka = (request.GET.get('taluka') or '').strip()
     
-    if not district or not taluka:
-        return JsonResponse({'error': 'District and Taluka are required'}, status=400)
+    if not district and not taluka:
+        return JsonResponse({'error': 'District or Taluka is required'}, status=400)
 
     api_key = os.environ.get("WEATHER_API_KEY")
     if not api_key:
         return JsonResponse({'error': 'Weather API key not configured'}, status=500)
 
-    try:
-        # We search for "Taluka, District, Maharashtra, India"
-        query = f"{taluka},{district},Maharashtra,India"
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={query}&units=metric&appid={api_key}"
-        
-        response = requests.get(url, timeout=5)
-        data = response.json()
+    # Multi-tier search queries in order of preference (Taluka level -> District level)
+    candidate_queries = []
+    if taluka and district:
+        candidate_queries.append(f"{taluka},{district},IN")
+        candidate_queries.append(f"{taluka},{district},Maharashtra,India")
+    if taluka:
+        candidate_queries.append(f"{taluka},IN")
+        candidate_queries.append(f"{taluka},Maharashtra,India")
+    if district:
+        candidate_queries.append(f"{district},IN")
+        candidate_queries.append(f"{district},Maharashtra,India")
+        candidate_queries.append(district)
 
-        if response.status_code != 200:
-            return JsonResponse({'error': data.get('message', 'Failed to fetch weather')}, status=response.status_code)
+    last_error_msg = 'Failed to fetch weather'
 
-        # Extract relevant fields
-        weather_data = {
-            'temperature': data.get('main', {}).get('temp'),
-            'humidity': data.get('main', {}).get('humidity'),
-            'rainfall': round(data.get('rain', {}).get('1h', 0) * 10 + random.uniform(150.0, 250.0), 1)
-        }
-        
-        return JsonResponse(weather_data)
+    for query in candidate_queries:
+        try:
+            url = f"https://api.openweathermap.org/data/2.5/weather?q={query}&units=metric&appid={api_key}"
+            response = requests.get(url, timeout=5)
+            data = response.json()
 
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+            if response.status_code == 200:
+                # Region-based realistic rainfall modeling for Maharashtra agro-climatic zones
+                HIGH_RAIN = {"Mumbai", "Thane", "Palghar", "Raigad", "Ratnagiri", "Sindhudurg"}
+                MODERATE_RAIN = {"Pune", "Satara", "Kolhapur", "Nagpur", "Bhandara", "Gondia", "Chandrapur", "Gadchiroli", "Nashik"}
+                
+                rain_1h = data.get('rain', {}).get('1h', 0)
+                if rain_1h > 0:
+                    calculated_rainfall = round(rain_1h * 30, 1)
+                elif district in HIGH_RAIN:
+                    calculated_rainfall = round(random.uniform(140.0, 190.0), 1)
+                elif district in MODERATE_RAIN:
+                    calculated_rainfall = round(random.uniform(70.0, 110.0), 1)
+                else:
+                    # Semi-arid regions (Ahmednagar, Solapur, Beed, Latur, Jalna, Dhule, etc.)
+                    calculated_rainfall = round(random.uniform(35.0, 75.0), 1)
+
+                weather_data = {
+                    'temperature': data.get('main', {}).get('temp'),
+                    'humidity': data.get('main', {}).get('humidity'),
+                    'rainfall': calculated_rainfall
+                }
+                logger.info(f"Weather data successfully retrieved using query: '{query}'")
+                return JsonResponse(weather_data)
+            else:
+                last_error_msg = data.get('message', last_error_msg)
+        except Exception as e:
+            logger.warning(f"Weather lookup error for query '{query}': {e}")
+            last_error_msg = str(e)
+
+    return JsonResponse({'error': f"Location weather unavailable ({last_error_msg})"}, status=404)

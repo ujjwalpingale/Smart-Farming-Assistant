@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { logoutUser } from '../api';
 import LanguageSwitcher from './LanguageSwitcher';
 
-export default function Navbar({ user, setUser }) {
+export default function Navbar({ user, setUser, isStaff }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -31,6 +31,9 @@ export default function Navbar({ user, setUser }) {
               <li><NavLink to="/fertilizer">🧪 {t('common.fertilizer')}</NavLink></li>
               <li><NavLink to="/disease">🔬 {t('common.disease')}</NavLink></li>
               <li><NavLink to="/chatbot">🤖 {t('chatbot.title')}</NavLink></li>
+              {isStaff && (
+                <li><a href="/management/dashboard/" target="_blank" rel="noreferrer">🛡️ Admin</a></li>
+              )}
             </>
           )}
         </ul>

@@ -58,6 +58,7 @@ export default function DiseaseDetection() {
   }
 
   if (result) {
+    const isHealthy = result.disease.toLowerCase().includes('healthy') || result.disease.toLowerCase().includes('no disease');
     return (
       <div className="main-content">
         <div className="container" style={{ maxWidth: 600, padding: '3rem 1.5rem' }}>
@@ -71,27 +72,40 @@ export default function DiseaseDetection() {
                   objectFit: 'cover',
                   borderRadius: 'var(--radius-lg)',
                   marginBottom: '1.5rem',
-                  border: '2px solid var(--border)',
+                  border: isHealthy ? '2px solid rgba(34, 197, 94, 0.4)' : '2px solid var(--border)',
                 }}
               />
             )}
-            <div className="result-icon rose" style={{ margin: '0 auto 1.5rem' }}>🔬</div>
+            <div className={`result-icon ${isHealthy ? 'green' : 'rose'}`} style={{ margin: '0 auto 1.5rem' }}>
+              {isHealthy ? '🌿' : '🔬'}
+            </div>
             <div className="result-label">{t('disease.result_title')}</div>
-            <div className="result-value" style={{ fontSize: '1.8rem', marginBottom: '1.25rem' }}>
+            <div className="result-value" style={{ 
+              fontSize: '1.8rem', 
+              marginBottom: '1.25rem',
+              color: isHealthy ? 'var(--accent-green)' : 'var(--accent-rose)',
+              background: 'none',
+              WebkitTextFillColor: 'initial'
+            }}>
               {result.disease}
             </div>
 
             <div
               className="glass-card"
-              style={{ padding: '1.25rem 1.5rem', textAlign: 'left', marginBottom: '1.5rem' }}
+              style={{ 
+                padding: '1.25rem 1.5rem', 
+                textAlign: 'left', 
+                marginBottom: '1.5rem',
+                borderColor: isHealthy ? 'rgba(34, 197, 94, 0.25)' : 'var(--border)'
+              }}
             >
               <div
                 style={{
                   fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em',
-                  textTransform: 'uppercase', color: 'var(--accent-rose)', marginBottom: '0.5rem',
+                  textTransform: 'uppercase', color: isHealthy ? 'var(--accent-green)' : 'var(--accent-rose)', marginBottom: '0.5rem',
                 }}
               >
-                🛡 {t('disease.prevention')}
+                {isHealthy ? '🌱 CARE ADVICE' : `🛡 ${t('disease.prevention')}`}
               </div>
               <p className="text-secondary text-sm" style={{ lineHeight: 1.7 }}>
                 {result.prevention}

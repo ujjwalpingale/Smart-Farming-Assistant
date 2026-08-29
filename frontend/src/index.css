@@ -872,3 +872,46 @@ select option {
   border-color: var(--accent-green);
   color: var(--text-primary);
 }
+
+/* ── Location Group Box ─────────────────────────────────────────────────── */
+.location-group {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  position: relative;
+  transition: all var(--transition);
+}
+
+.location-group:hover {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 6px 24px -2px rgba(34, 197, 94, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.location-group.orange {
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.location-group.orange:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 6px 24px -2px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.location-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-green);
+  margin-bottom: 1rem;
+}
+
+.location-group.orange .location-group-title {
+  color: var(--accent-amber);
+}
+

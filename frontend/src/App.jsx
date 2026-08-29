@@ -8,15 +8,37 @@ import CropRecommendation from './pages/CropRecommendation';
 import FertilizerRecommendation from './pages/FertilizerRecommendation';
 import DiseaseDetection from './pages/DiseaseDetection';
 import Chatbot from './pages/Chatbot';
+import { getCurrentUser } from './api';
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem('user'));
+  const [isStaff, setIsStaff] = useState(localStorage.getItem('isStaff') === 'true');
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await getCurrentUser();
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            setUser(data.username);
+            setIsStaff(Boolean(data.is_staff || data.is_superuser));
+            localStorage.setItem('user', data.username);
+            localStorage.setItem('isStaff', String(Boolean(data.is_staff || data.is_superuser)));
+          }
+        }
+      } catch (_) {}
+    }
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', user);
     } else {
       localStorage.removeItem('user');
+      localStorage.removeItem('isStaff');
+      setIsStaff(false);
     }
   }, [user]);
 
@@ -30,7 +52,7 @@ function App() {
 
   return (
     <Router>
-      <Navbar user={user} setUser={setUser} />
+      <Navbar user={user} setUser={setUser} isStaff={isStaff} />
       <Routes>
         <Route path="/" element={<Home user={user} />} />
         <Route path="/login" element={<Login setUser={setUser} />} />

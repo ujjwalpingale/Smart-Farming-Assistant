@@ -51,7 +51,6 @@ export default function Home({ user }) {
             { value: '22+', label: 'home.stats.crops' },
             { value: '10+', label: 'home.stats.ferts' },
             { value: '38+', label: 'home.stats.classes' },
-            { value: '99%', label: 'home.stats.accuracy' },
           ].map(({ value, label }) => (
             <div className="stat-item" key={label}>
               <div className="stat-value">{value}</div>

@@ -7,3 +7,5 @@ tensorflow>=2.18
 h5py>=3.12
 joblib==1.4.2
 python-dotenv==1.0.0
+pymysql>=1.2.0
+mysqlclient>=2.2.8

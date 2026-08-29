@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { predictCrop } from '../api';
 
 const FIELDS = [
-  { key: 'nitrogen',    label: 'crop.nitrogen',    unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
-  { key: 'phosphorus',  label: 'crop.phosphorus',  unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
-  { key: 'potassium',   label: 'crop.potassium',   unit: 'mg/kg', min: 0, max: 200, step: 1,   placeholder: '0–200' },
-  { key: 'temperature', label: 'crop.temperature', unit: '°C',    min: 0, max: 60,  step: 0.1, placeholder: '0–60' },
-  { key: 'humidity',    label: 'crop.humidity',    unit: '%',     min: 0, max: 100, step: 0.1, placeholder: '0–100' },
-  { key: 'ph',          label: 'crop.ph',          unit: 'pH',    min: 0, max: 14,  step: 0.1, placeholder: '0–14' },
-  { key: 'rainfall',    label: 'crop.rainfall',    unit: 'mm',    min: 0, max: 500, step: 0.1, placeholder: '0–500' },
+  { key: 'nitrogen',    label: 'crop.nitrogen',    unit: 'mg/kg', min: 0, max: 200, step: 'any', placeholder: '0–200' },
+  { key: 'phosphorus',  label: 'crop.phosphorus',  unit: 'mg/kg', min: 0, max: 200, step: 'any', placeholder: '0–200' },
+  { key: 'potassium',   label: 'crop.potassium',   unit: 'mg/kg', min: 0, max: 200, step: 'any', placeholder: '0–200' },
+  { key: 'temperature', label: 'crop.temperature', unit: '°C',    min: 0, max: 60,  step: 'any', placeholder: '0–60' },
+  { key: 'humidity',    label: 'crop.humidity',    unit: '%',     min: 0, max: 100, step: 'any', placeholder: '0–100' },
+  { key: 'ph',          label: 'crop.ph',          unit: 'pH',    min: 0, max: 14,  step: 'any', placeholder: '0–14' },
+  { key: 'rainfall',    label: 'crop.rainfall',    unit: 'mm',    min: 0, max: 500, step: 'any', placeholder: '0–500' },
 ];
 
 const LOCATIONS = {
@@ -85,6 +85,10 @@ export default function CropRecommendation() {
 
       setValues(v => ({
         ...v,
+        nitrogen: v.nitrogen !== undefined && v.nitrogen !== '' ? v.nitrogen : 50,
+        phosphorus: v.phosphorus !== undefined && v.phosphorus !== '' ? v.phosphorus : 50,
+        potassium: v.potassium !== undefined && v.potassium !== '' ? v.potassium : 50,
+        ph: v.ph !== undefined && v.ph !== '' ? v.ph : 6.5,
         temperature: data.temperature,
         humidity: data.humidity,
         rainfall: data.rainfall
@@ -219,11 +223,10 @@ export default function CropRecommendation() {
           <form onSubmit={handleSubmit}>
             {/* Location Dropdowns */}
             {inputMode === 'location' && (
-              <div className="location-group mb-6 p-4 animate-fade-up" style={{ 
-                background: 'rgba(34,197,94,0.05)', 
-                borderRadius: 'var(--radius-md)',
-                border: '1px dotted var(--accent-green)'
-              }}>
+              <div className="location-group mb-6 animate-fade-up">
+                <div className="location-group-title">
+                  <span>📍</span> {t('crop.location')}
+                </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">{t('crop.district')}</label>
@@ -258,12 +261,17 @@ export default function CropRecommendation() {
                   className="btn btn-outline btn-full mt-3"
                   onClick={fetchWeather}
                   disabled={weatherLoading || !selectedTaluka}
+                  style={{
+                    background: weatherLoading ? 'transparent' : 'rgba(34, 197, 94, 0.08)',
+                    borderColor: 'rgba(34, 197, 94, 0.3)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
                   {weatherLoading ? <div className="spinner" /> : `🌦 ${t('crop.fetch_weather')}`}
                 </button>
                 {weatherSuccess && (
                   <p style={{ fontSize: '0.75rem', color: 'var(--accent-green)', marginTop: '0.5rem', textAlign: 'center' }}>
-                    ✅ {t('crop.weather_note')}
+                    ✅ Weather data auto-filled for Temperature, Humidity & Rainfall. Typical soil values added (editable).
                   </p>
                 )}
               </div>

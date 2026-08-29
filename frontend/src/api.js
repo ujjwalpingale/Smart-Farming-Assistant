@@ -39,6 +39,11 @@ async function request(url, options = {}) {
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 
+/** GET current user session details from Django backend */
+export async function getCurrentUser() {
+  return request('/api/user/', { method: 'GET' });
+}
+
 /** POST credentials as form-data to Django's login view */
 export async function loginUser(username, password) {
   const form = new FormData();
